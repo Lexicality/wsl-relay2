@@ -20,38 +20,47 @@ use std::time::Duration;
 #[clap(author, version, about, long_about = None)]
 pub struct Conf {
     #[clap(short, long, action)]
-    verbose: bool,
+    pub verbose: bool,
     /// poll until the the specified thing exists
     #[clap(short, long, action)]
-    poll: bool,
+    pub poll: bool,
     /// How long to wait between polling
     #[clap(long, parse(try_from_str = parse_duration), default_value = "200ms")]
-    poll_interval: Duration,
-    /// close the write channel after stdin closes
-    #[clap(short = 's', long = "close-pipe", action)]
-    close_pipe_on_eof: bool,
+    pub poll_interval: Duration,
+    // TODO: Under what circumstances can you keep writing after a read fails?
     /// terminate when pipe closes, regardless of stdin state
     #[clap(long = "pipe-closes", action)]
-    exit_on_pipe_eof: bool,
+    pub exit_on_pipe_eof: bool,
     /// terminate on stdin closes, regardless of pipe state
     #[clap(long = "input-closes", action)]
-    exit_on_stdin_eof: bool,
+    pub exit_on_stdin_eof: bool,
     /// What to do
     #[clap(subcommand)]
-    command: Command,
+    pub command: Command,
 }
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
     /// Connects to a named pipe
     Pipe {
-        /// The full name of the pipe (eg \\.\pipe\foo)
+        /// The name of the pipe to connect to
+        ///
+        /// This can either be just the name (eg docker-engine), the full path
+        /// (\\.\pipe\docker-engine) or a bash friendly full path
+        /// (//./pipe/docker-engine)
         #[clap(value_parser)]
         name: String,
+        // TODO: When do you not want to do this? Why is the default false?
+        /// Send a close message to the pipe when stdin closes
+        #[clap(short = 's', long = "close-pipe", action)]
+        close_on_eof: bool,
     },
     /// Connects to a GPG agent socket
     GPG {
-        /// The full name of the pipe (eg \\.\pipe\foo)
+        /// The GPG socket file to connect to
+        ///
+        /// This can be just the filename (eg S.gpg-agent) and we will attempt
+        /// to find it or the full path in windows notation (C:\Users\FooBar\AppData\...etc)
         #[clap(value_parser, default_value = "S.gpg-agent")]
         file: String,
     },
