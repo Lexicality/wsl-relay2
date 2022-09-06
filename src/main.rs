@@ -13,10 +13,12 @@
 // limitations under the License.
 
 use clap::Parser;
+use simple_logger::SimpleLogger;
 use wsl_relay::config::Conf;
 
 fn main() {
-    println!("Hello, world!");
+    SimpleLogger::new().init().unwrap();
+    log::info!("Hello, world!");
     let aa = Conf::parse();
     println!("aaa {:?}", aa);
 }
