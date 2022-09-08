@@ -15,4 +15,6 @@ clap = { version = "3.2.20", features = ["derive"] }
 humantime = "2.1.0"
 log = "0.4.17"
 simple_logger = "2.3.0"
+tokio = { version = "1.21.0", features = ["full", "winapi"] }
+winapi = { version = "0.3.9", features = ["namedpipeapi"] }
 windows-named-pipe = "0.1.0"

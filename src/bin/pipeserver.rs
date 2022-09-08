@@ -52,18 +52,23 @@ fn main() -> Result<(), Box<dyn Error>> {
                 log::error!("can't read {}", e);
                 break;
             }
+            buf = buf.trim().to_string();
             log::info!("Got message: {}", buf);
             if buf == "death" {
                 log::info!("terminating early");
+                let writer = reader.get_mut();
+                writer.write_all("bye\n".as_bytes())?;
+                writer.flush()?;
                 break;
             }
             let writer = reader.get_mut();
-            let answer = format!("> {}", &buf);
+            let answer = format!("> {}\n", &buf);
             let res = writer.write_all(answer.as_bytes());
             if let Result::Err(e) = res {
                 log::error!("can't write {}", e);
                 break;
             }
+            buf.clear();
         }
     }
     Ok(())
