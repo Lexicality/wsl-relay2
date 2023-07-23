@@ -12,6 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+use tokio::io::{AsyncRead, AsyncWrite};
+
+type DataIn = dyn AsyncRead + Unpin + Send + 'static;
+type DataOut = dyn AsyncWrite + Unpin + Send + 'static;
+
 pub mod config;
 pub mod gpg;
+pub mod net;
 pub mod pipe;
+
+/*
+pub async fn run<In, Out>(
+    mut data_in: In,
+    mut data_out: Out,
+    config: Conf,
+) -> Result<(), Box<dyn Error>>
+where
+    In: AsyncRead + Unpin + Send + 'static,
+    Out: AsyncWrite + Unpin + Send + 'static,
+{
+
+type DataIn = AsyncRead + Unpin + Send + 'static;
+type DataOut = AsyncWrite + Unpin + Send + 'static;
+
+pub async fn run(
+    mut data_in: DataIn,
+    mut data_out: DataOut,
+    config: Conf,
+) -> Result<(), Box<dyn Error>> {
+    */

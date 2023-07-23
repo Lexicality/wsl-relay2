@@ -17,7 +17,7 @@ use std::error::Error;
 use std::fmt;
 use std::io::{ErrorKind, Result as IOResult};
 
-use tokio::io::{self, AsyncRead, AsyncWrite, AsyncWriteExt};
+use tokio::io::{self, AsyncRead, AsyncWrite, AsyncWriteExt, AsyncReadExt};
 use tokio::net::windows::named_pipe::{ClientOptions, NamedPipeClient};
 use tokio::time;
 use winapi::shared::winerror;
@@ -69,7 +69,7 @@ fn is_broken_pipe(e: &std::io::Error) -> bool {
         || e.raw_os_error() == Some(winerror::ERROR_PIPE_NOT_CONNECTED as i32);
 }
 
-pub async fn do_copy<In, Out>(
+pub async fn run<In, Out>(
     mut data_in: In,
     mut data_out: Out,
     config: Conf,
@@ -86,7 +86,9 @@ where
         _ => panic!("Unexpected config.command value!"),
     };
     let name = get_pipe_name(&name)?;
-    let (mut pipe_out, mut pipe_in) = io::split(open_pipe(name, &config).await?);
+    let pipe = open_pipe(name, &config).await?
+
+    let (mut pipe_out, mut pipe_in) = io::split(pipe);
 
     let copy_in = tokio::spawn(async move {
         let res = io::copy(&mut data_in, &mut pipe_in).await?;
@@ -102,6 +104,7 @@ where
 
         Ok(res)
     });
+
     let copy_out = tokio::spawn(async move { io::copy(&mut pipe_out, &mut data_out).await });
 
     tokio::pin!(copy_in);

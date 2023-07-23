@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     log::info!("Hello, world!");
     let aa = Conf::parse();
     match aa.command {
-        Command::Pipe { .. } => wsl_relay::pipe::do_copy(io::stdin(), io::stdout(), aa),
+        Command::Pipe { .. } => wsl_relay::pipe::run(io::stdin(), io::stdout(), aa),
         Command::GPG { .. } => panic!("TODO"),
     }
     .await?;
